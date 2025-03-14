@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+import 'package:wsm_mobile_app/providers/global/auth_provider.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -13,7 +14,7 @@ class ProfileScreen extends StatelessWidget {
       ),
       body: GestureDetector(
           onTap: () {
-            context.go('/login');
+            Provider.of<AuthProvider>(context, listen: false).handleLogout();
           },
           child: Text("logout")),
     );

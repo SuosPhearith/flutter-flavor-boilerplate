@@ -3,8 +3,8 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:wsm_mobile_app/app_routes.dart';
-import 'package:wsm_mobile_app/providers/counter_provider.dart';
-import 'package:wsm_mobile_app/providers/login_provider.dart';
+import 'package:wsm_mobile_app/middlewares/auth_middleware.dart';
+import 'package:wsm_mobile_app/providers/global/auth_provider.dart';
 import 'package:wsm_mobile_app/screens/home_screen.dart';
 import 'package:wsm_mobile_app/screens/login_screen.dart';
 import 'package:wsm_mobile_app/screens/profile_screen.dart';
@@ -29,8 +29,7 @@ void main() async {
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => CounterProvider()),
-        ChangeNotifierProvider(create: (_) => LoginProvider()),
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
       ],
       child: const MyApp(),
     ),
@@ -58,7 +57,8 @@ final GoRouter _router = GoRouter(
     // 📌 Routes with Bottom Navigation Layout
     ShellRoute(
       navigatorKey: GlobalKey<NavigatorState>(), // Fix nested navigation issues
-      builder: (context, state, child) => MainLayout(child: child),
+      builder: (context, state, child) =>
+          AuthMiddleware(child: MainLayout(child: child)),
       routes: [
         GoRoute(
             path: AppRoutes.home,
@@ -78,11 +78,13 @@ final GoRouter _router = GoRouter(
     // NO Bottom Navigation
     GoRoute(
       path: AppRoutes.login,
-      builder: (context, state) => const AuthLayout(child: LoginScreen()),
+      builder: (context, state) =>
+          AuthMiddleware(child: const AuthLayout(child: LoginScreen())),
     ),
     GoRoute(
       path: AppRoutes.selectApp,
-      builder: (context, state) => const AuthLayout(child: SelectAppScreen()),
+      builder: (context, state) =>
+          AuthMiddleware(child: const AuthLayout(child: SelectAppScreen())),
     ),
   ],
   errorBuilder: (context, state) => Scaffold(
