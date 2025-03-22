@@ -2,16 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-import 'package:wsm_mobile_app/app_routes.dart';
-import 'package:wsm_mobile_app/middlewares/auth_middleware.dart';
-import 'package:wsm_mobile_app/providers/global/auth_provider.dart';
-import 'package:wsm_mobile_app/screens/home_screen.dart';
-import 'package:wsm_mobile_app/screens/login_screen.dart';
-import 'package:wsm_mobile_app/screens/profile_screen.dart';
-import 'package:wsm_mobile_app/screens/sale_screen.dart';
-import 'package:wsm_mobile_app/screens/select_app_screen.dart';
-import 'package:wsm_mobile_app/screens/todo_screen.dart';
-import 'package:wsm_mobile_app/utils/dio.client.dart';
+import 'package:mobile_app/app_routes.dart';
+import 'package:mobile_app/middlewares/auth_middleware.dart';
+import 'package:mobile_app/providers/global/auth_provider.dart';
+import 'package:mobile_app/screens/home_screen.dart';
+import 'package:mobile_app/screens/login_screen.dart';
+import 'package:mobile_app/screens/profile_screen.dart';
+import 'package:mobile_app/screens/sale_screen.dart';
+import 'package:mobile_app/utils/dio.client.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -44,7 +42,14 @@ class MyApp extends StatelessWidget {
     DioClient.setupInterceptors(context);
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,
-      routerConfig: _router, // Use GoRouter for navigation
+      routerConfig: _router,
+      theme: ThemeData(
+        fontFamily: 'Kantumruy',
+        textTheme: const TextTheme(
+          bodyLarge: TextStyle(fontSize: 18),
+          bodyMedium: TextStyle(fontSize: 16),
+        ),
+      ),
     );
   }
 }
@@ -64,9 +69,6 @@ final GoRouter _router = GoRouter(
             path: AppRoutes.home,
             builder: (context, state) => const HomeScreen()),
         GoRoute(
-            path: AppRoutes.todo,
-            builder: (context, state) => const TodoScreen()),
-        GoRoute(
             path: AppRoutes.sale,
             builder: (context, state) => const SaleScreen()),
         GoRoute(
@@ -80,11 +82,6 @@ final GoRouter _router = GoRouter(
       path: AppRoutes.login,
       builder: (context, state) =>
           AuthMiddleware(child: const AuthLayout(child: LoginScreen())),
-    ),
-    GoRoute(
-      path: AppRoutes.selectApp,
-      builder: (context, state) =>
-          AuthMiddleware(child: const AuthLayout(child: SelectAppScreen())),
     ),
   ],
   errorBuilder: (context, state) => Scaffold(
@@ -106,7 +103,6 @@ class _MainLayoutState extends State<MainLayout> {
 
   final List<Widget> _pages = [
     const HomeScreen(),
-    const TodoScreen(),
     const SaleScreen(),
     const ProfileScreen(),
   ];
@@ -114,9 +110,9 @@ class _MainLayoutState extends State<MainLayout> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-          child: _pages[_currentIndex]), // Use IndexedStack to preserve state
+      body: SafeArea(child: _pages[_currentIndex]),
       bottomNavigationBar: BottomNavigationBar(
+        backgroundColor: Colors.white,
         currentIndex: _currentIndex,
         onTap: (index) {
           setState(() => _currentIndex = index);
@@ -126,9 +122,7 @@ class _MainLayoutState extends State<MainLayout> {
         unselectedItemColor: Colors.grey,
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home_filled), label: "Home"),
-          BottomNavigationBarItem(icon: Icon(Icons.task), label: "Todo"),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.shopping_bag), label: "Sale"),
+          BottomNavigationBarItem(icon: Icon(Icons.receipt), label: "Sale"),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: "Profile"),
         ],
       ),

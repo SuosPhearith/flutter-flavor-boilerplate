@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
-import 'package:wsm_mobile_app/error_type.dart';
-import 'package:wsm_mobile_app/utils/dio.client.dart';
-import 'package:wsm_mobile_app/utils/help_util.dart';
+import 'package:mobile_app/error_type.dart';
+import 'package:mobile_app/utils/dio.client.dart';
+import 'package:mobile_app/utils/help_util.dart';
 
 class AuthService {
   Future<String> login({

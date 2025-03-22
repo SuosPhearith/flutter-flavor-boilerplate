@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:wsm_mobile_app/services/auth_service.dart';
+import 'package:mobile_app/services/auth_service.dart';
 
 class AuthProvider extends ChangeNotifier {
   // Feilds
   bool _isLoading = false;
   String? _error;
   bool _isLoggedIn = false;
+  bool _isChecking = false;
 
   // Services
   final FlutterSecureStorage _storage = FlutterSecureStorage();
@@ -16,6 +17,7 @@ class AuthProvider extends ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get error => _error;
   bool get isLoggedIn => _isLoggedIn;
+  bool get isChecking => _isChecking;
 
   // Setters
 
@@ -23,31 +25,16 @@ class AuthProvider extends ChangeNotifier {
   AuthProvider() {
     handleCheckAuth();
   }
-
-  // Functions
-  Future<void> getHome() async {
-    _isLoading = true;
-    notifyListeners();
-    try {
-      // Do anything
-    } catch (e) {
-      _error = "Invalid Credential.";
-    } finally {
-      _isLoading = false;
-      notifyListeners();
-    }
-  }
-
   // Login
   Future<void> handleLogin(
       {required String username, required String password}) async {
     _isLoading = true;
     notifyListeners();
     try {
-      String token =
+      Map<String, dynamic> data =
           await _authService.login(username: username, password: password);
-      _storage.write(key: 'token', value: token);
-      _isLoggedIn =true;
+      await saveAuthData(data);
+      _isLoggedIn = true;
     } catch (e) {
       _error = "Invalid Credential.";
     } finally {
@@ -66,24 +53,35 @@ class AuthProvider extends ChangeNotifier {
   // Check Auth
   Future<void> handleCheckAuth() async {
     try {
-      _isLoading = true;
+      _isChecking = true;
       notifyListeners();
-      String? token = await _storage.read(key: 'token');
-      if (token == null || token.isEmpty) {
-        _isLoggedIn = false;
-      } else {
-        _isLoggedIn = await _validateToken(token);
-      }
+      _isLoggedIn = await _validateToken();
     } catch (e) {
       _isLoggedIn = false;
     } finally {
-      _isLoading = false;
+      _isChecking = false;
       notifyListeners();
     }
   }
 
-  Future<bool> _validateToken(String token) async {
+  Future<bool> _validateToken() async {
     // Verrify token in here
-    return token.isNotEmpty;
+    try {
+      await _authService.checkAuth();
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future<void> saveAuthData(Map<String, dynamic> data) async {
+    try {
+      await _storage.write(key: 'token', value: data['accessToken'] ?? '');
+      await _storage.write(key: 'username', value: data['username'] ?? '');
+      await _storage.write(key: 'email', value: data['email'] ?? '');
+      await _storage.write(key: 'image', value: data['image'] ?? '');
+    } catch (e) {
+      rethrow;
+    }
   }
 }
